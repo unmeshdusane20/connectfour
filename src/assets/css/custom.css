@@ -74,6 +74,17 @@ h1 {
 	background: #000;
 }
 
+.cell.red {
+	border-color: #000;
+	background: #f00;
+}
+
+.cell.green {
+	border-color: #000;
+	background: #0f0;
+}
+
+
 .cell.highlight-cell {
 	background: #f00;
 }
