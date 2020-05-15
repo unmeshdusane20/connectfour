@@ -8,7 +8,10 @@
           'empty': cell.value == 0,
           'hover-true': cell.hover,
           'red': cell.value == 1,
-          'green': cell.value == 2 }" :data-value="cell.value" :data-row="rowindex" :data-col="index"
+          'green': cell.value == 2 }"
+        :data-value="cell.value"
+        :data-row="rowindex"
+        :data-col="index"
         v-for="(cell, colKey, index) in row" :key="colKey">
         </div>
       </div>
@@ -54,9 +57,66 @@
 
       // check wiiing cell on click
       checkWinner (item) {
+        var _that = this
+        var col = item.col
+        var row = item.row
 
+        // check horizontal probability of winning
+        function checkHorizontal () {
+          // check left-right
+          console.log(item)
+          if(item.col <= 3) {
+            if((_that.grid.matrix[row][col].value == item.value) &&
+              (_that.grid.matrix[row][col+1].value == item.value) &&
+              (_that.grid.matrix[row][col+2].value == item.value) &&
+              (_that.grid.matrix[row][col+3].value == item.value)) {
+              console.log("win move")
+            }
+          }
+
+          // check right-left
+          if(item.col >= 3) {
+            if((_that.grid.matrix[row][col].value == item.value) &&
+              (_that.grid.matrix[row][col-1].value == item.value) &&
+              (_that.grid.matrix[row][col-2].value == item.value) &&
+              (_that.grid.matrix[row][col-3].value == item.value)) {
+              console.log("win move")
+            }
+          }
+        }
+
+
+        // check vertical probability of winning
+        function checkVertical () {
+          // check top-bottom
+          console.log(item)
+          if(item.row <= 2) {
+            if((_that.grid.matrix[row][col].value == item.value) &&
+              (_that.grid.matrix[row+1][col].value == item.value) &&
+              (_that.grid.matrix[row+2][col].value == item.value) &&
+              (_that.grid.matrix[row+3][col].value == item.value)) {
+              console.log("win row move top-bottom")
+            }
+          }
+
+          // check bottom-top
+          if(item.row >= 3) {
+            if((_that.grid.matrix[row][col].value == item.value) &&
+              (_that.grid.matrix[row-1][col].value == item.value) &&
+              (_that.grid.matrix[row-2][col].value == item.value) &&
+              (_that.grid.matrix[row-3][col].value == item.value)) {
+              console.log("win row move bottom-top")
+            }
+          }
+        }
+
+        checkHorizontal()
+        checkVertical()
       },
 
+
+
+      // toggle current player to other
       togglePlayer () {
         var _this = this
         if(this.selectedPlayer.index) {
@@ -72,7 +132,7 @@
         }
       },
 
-
+      // click handler for cell
       onClickCell(event, item) {
         var column = [];
         for(var i=0; i<this.grid.matrix.length; i++){
