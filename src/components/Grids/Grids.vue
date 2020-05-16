@@ -6,11 +6,13 @@
         @mouseover="onHoverCell($event, cell)"
         @mouseleave="onMouseLeave($event, cell)"
         @click="onClickCell($event, cell)"
-        :class="{
-          'empty': cell.value == 0,
-          'hover-true': cell.hover,
-          'red': cell.value == 1,
-          'green': cell.value == 2 }"
+        :style="{
+          background: (cell.hover && cell.value == 0) ?
+                        selectedPlayer.player.color :
+                          (cell.player ? cell.player.player.color : ''),
+          opacity: cell.hover ? 0.5 : 1
+        }"
+        :class="{'empty': cell.value == 0}"
         :data-value="cell.value"
         :data-row="rowindex"
         :data-col="index"
@@ -18,7 +20,6 @@
         </div>
       </div>
     </div>
-    <div style="background: #fff;color: #000">{{selectedPlayer}}</div>
   </div>
 </template>
 <script>
@@ -34,7 +35,8 @@
           gameStarted: false,
           nextTurn: 1
         },
-        selectedPlayer: null
+        selectedPlayer: null,
+        isWinner: false
       }
     },
 
@@ -93,16 +95,21 @@
         var col = item.col
         var row = item.row
 
+        var winner = null
+
         // check horizontal probability of winning
         function checkHorizontal () {
           // check left-right
           console.log(item)
+          var isWinner = false
+
           if(item.col <= 3) {
             if((_that.grid.matrix[row][col].value == item.value) &&
               (_that.grid.matrix[row][col+1].value == item.value) &&
               (_that.grid.matrix[row][col+2].value == item.value) &&
               (_that.grid.matrix[row][col+3].value == item.value)) {
               console.log("win move")
+              isWinner = true
             }
           }
 
@@ -113,8 +120,12 @@
               (_that.grid.matrix[row][col-2].value == item.value) &&
               (_that.grid.matrix[row][col-3].value == item.value)) {
               console.log("win move")
+              isWinner = true
             }
           }
+
+          return isWinner
+
         }
 
 
@@ -122,12 +133,15 @@
         function checkVertical () {
           // check top-bottom
           console.log(item)
+          var isWinner = false
+
           if(item.row <= 2) {
             if((_that.grid.matrix[row][col].value == item.value) &&
               (_that.grid.matrix[row+1][col].value == item.value) &&
               (_that.grid.matrix[row+2][col].value == item.value) &&
               (_that.grid.matrix[row+3][col].value == item.value)) {
               console.log("win row move top-bottom")
+              isWinner = true
             }
           }
 
@@ -138,18 +152,23 @@
               (_that.grid.matrix[row-2][col].value == item.value) &&
               (_that.grid.matrix[row-3][col].value == item.value)) {
               console.log("win row move bottom-top")
+              isWinner = true
             }
           }
+          return isWinner
         }
 
         function checkDiagonal () {
           // check diagonal right down
+          var isWinner = false
+
           if(item.col <= 3 && item.row <=2) {
             if((_that.grid.matrix[row][col].value == item.value) &&
               (_that.grid.matrix[row+1][col+1].value == item.value) &&
               (_that.grid.matrix[row+2][col+2].value == item.value) &&
               (_that.grid.matrix[row+3][col+3].value == item.value)) {
               console.log("win diagonal move top - down")
+              isWinner = true
             }
           }
 
@@ -160,14 +179,15 @@
               (_that.grid.matrix[row+2][col-2].value == item.value) &&
               (_that.grid.matrix[row+3][col-3].value == item.value)) {
               console.log("win diagonal move top - down minus")
+              isWinner = true
             }
           }
+
+          return isWinner
         }
 
 
-        checkHorizontal()
-        checkVertical()
-        checkDiagonal()
+        return checkHorizontal() || checkVertical() || checkDiagonal()
       },
 
 
@@ -208,7 +228,12 @@
         this.grid.nextTurn = this.grid.nextTurn == 1 ? 2 : 1
 
         //check winner from current cell
-        this.checkWinner(_last)
+        var isWinner = this.checkWinner(_last)
+        if(isWinner) {
+          this.EventBus.$emit('onWinnerDeclare', _last)
+          return true
+        }
+
 
         // toggle selected player if winner not found
         this.togglePlayer()
@@ -232,21 +257,29 @@
 
     created () {
       this.initialize ()
+      this.EventBus.$on("PlayAgain", this.initialize)
+    },
+
+    beforeDestroy () {
+      this.EventBus.$off("PlayAgain", this.initialize)
     }
   }
 </script>
 <style>
   .grids {
     background: #7367F0;
-      margin: 0 auto;
-      display: inline-block;
-      font-size: 0;
-      border-radius: 10px;
+    margin: 0 auto;
+    display: inline-block;
+    font-size: 0;
+    border-radius: 10px;
+    box-shadow: 0 0 5px 5px #000;
+    border: 2px solid #000;
   }
   .cell {
     display: inline-block;
     width: 50px;
     height: 50px;
     margin: 5px;
+    background: #000;
   }
 </style>
