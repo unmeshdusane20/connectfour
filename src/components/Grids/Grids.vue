@@ -3,6 +3,8 @@
     <div class="grids">
       <div class="row" v-for="(row, rowKey, rowindex) in grid.matrix" :key="rowKey">
         <div class="cell"
+        @mouseover="onHoverCell($event, cell)"
+        @mouseleave="onMouseLeave($event, cell)"
         @click="onClickCell($event, cell)"
         :class="{
           'empty': cell.value == 0,
@@ -16,7 +18,7 @@
         </div>
       </div>
     </div>
-    <div>{{selectedPlayer}}</div>
+    <div style="background: #fff;color: #000">{{selectedPlayer}}</div>
   </div>
 </template>
 <script>
@@ -38,6 +40,8 @@
 
     methods: {
 
+
+
       // draw grid
       drawBoard () {
         for (var row=0; row< this.grid.rows; row++){
@@ -54,6 +58,34 @@
           }
         }
       },
+
+      onHoverCell(event, item) {
+        var column = [];
+        for(var i=0; i<this.grid.matrix.length; i++){
+          if(this.grid.matrix[i][item.col].value == 0)
+            column.push(this.grid.matrix[i][item.col]);
+        }
+
+        var _last = column[column.length-1]
+        //make a copy of the row
+        const newRow = this.grid.matrix[_last.row].slice(0)
+        // update the value
+        newRow[_last.col].hover = true
+        // update it in the grid
+        this.$set(this.grid.matrix, _last.row, newRow)
+      },
+
+      onMouseLeave(event) {
+        var column = [];
+        for(var i=0; i < this.grid.matrix.length; i++){
+          var row = this.grid.matrix[i]
+          for (var col = 0; col < row.length; col++) {
+            if(this.grid.matrix[i][col].hover == true)
+              this.grid.matrix[i][col].hover = false
+          }
+        }
+      },
+
 
       // check wiiing cell on click
       checkWinner (item) {
@@ -110,8 +142,32 @@
           }
         }
 
+        function checkDiagonal () {
+          // check diagonal right down
+          if(item.col <= 3 && item.row <=2) {
+            if((_that.grid.matrix[row][col].value == item.value) &&
+              (_that.grid.matrix[row+1][col+1].value == item.value) &&
+              (_that.grid.matrix[row+2][col+2].value == item.value) &&
+              (_that.grid.matrix[row+3][col+3].value == item.value)) {
+              console.log("win diagonal move top - down")
+            }
+          }
+
+          // check diagonal left down
+          if(item.col >= 3 && item.row <=2) {
+            if((_that.grid.matrix[row][col].value == item.value) &&
+              (_that.grid.matrix[row+1][col-1].value == item.value) &&
+              (_that.grid.matrix[row+2][col-2].value == item.value) &&
+              (_that.grid.matrix[row+3][col-3].value == item.value)) {
+              console.log("win diagonal move top - down minus")
+            }
+          }
+        }
+
+
         checkHorizontal()
         checkVertical()
+        checkDiagonal()
       },
 
 

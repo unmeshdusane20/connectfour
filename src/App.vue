@@ -27,11 +27,9 @@ export default {
         }
       },
       players: [{
-          name: 'Player1',
-          color: '#f00'
+          name: 'Player1'
         }, {
-          name: 'Player2',
-          color: '#0f0'
+          name: 'Player2'
         }]
       }
   }

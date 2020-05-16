@@ -72,6 +72,12 @@ h1 {
 
 .cell.empty {
 	background: #000;
+	cursor: pointer;
+}
+
+.cell.hover-true {
+	border-color: #000;
+	background: #f00;
 }
 
 .cell.red {
