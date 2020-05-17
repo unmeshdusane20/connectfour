@@ -1,8 +1,12 @@
 <template>
   <div class="gridWrapper">
+    <audio controls style="display: none" ref="cellclickaudio">
+       <source src="@/assets/media/cell-click.wav">
+    </audio>
+
     <div class="grids">
       <div class="row" v-for="(row, rowKey, rowindex) in grid.matrix" :key="rowKey">
-        <div class="cell"
+        <div class="cell animate__animated animate__tada"
         @mouseover="onHoverCell($event, cell)"
         @mouseleave="onMouseLeave($event, cell)"
         @click="onClickCell($event, cell)"
@@ -10,9 +14,12 @@
           background: (cell.hover && cell.value == 0) ?
                         selectedPlayer.player.color :
                           (cell.player ? cell.player.player.color : ''),
-          opacity: cell.hover ? 0.5 : 1
+          opacity: cell.hover ? 0.8 : 1
         }"
-        :class="{'empty': cell.value == 0}"
+        :class="{
+          'empty': cell.value == 0,
+          'animate__animated animate__jello' : cell.value == 1 || cell.value == 2
+        }"
         :data-value="cell.value"
         :data-row="rowindex"
         :data-col="index"
@@ -210,6 +217,7 @@
 
       // click handler for cell
       onClickCell(event, item) {
+        this.$refs.cellclickaudio.play()
         var column = [];
         for(var i=0; i<this.grid.matrix.length; i++){
           if(this.grid.matrix[i][item.col].value == 0)
@@ -248,6 +256,7 @@
       },
 
       initialize () {
+        console.log("init")
         this.gameStarted = true
         this.initializePlayer ()
         this.drawBoard ()
@@ -272,7 +281,7 @@
     display: inline-block;
     font-size: 0;
     border-radius: 10px;
-    box-shadow: 0 0 5px 5px #000;
+    /*box-shadow: 0 0 10px 0 #000;*/
     border: 2px solid #000;
   }
   .cell {
@@ -281,5 +290,6 @@
     height: 50px;
     margin: 5px;
     background: #000;
+    transition: background 0.4s ease;
   }
 </style>
